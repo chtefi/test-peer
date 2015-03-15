@@ -135,9 +135,7 @@
         connectedTo.push(conn);
         var item = $('<li>').attr('peer', conn.peer).text(conn.peer).appendTo($('ul'));
 
-        // var video = $('<video autoplay>', {
-        //     src: url ? url.createObjectURL(stream) : stream
-        // }).appendTo(item);
+        $('body').prepend('can call ? ' + myStream + '<br>');
         if (myStream) {
             $('body').prepend('calling ' + conn.peer + ' with my stream<br>');
             peer.call(conn.peer, myStream);
