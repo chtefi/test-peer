@@ -85,7 +85,7 @@
         initRepo();
     }, function(err) {
         console.error(err);
-        $('video#yourself').parent().text('cannot display your stream: ' + err);
+        $('video#yourself').parent().text('cannot display your stream: ' + err.message);
         initRepo();
     });
 
