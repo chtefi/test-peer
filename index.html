@@ -104,30 +104,28 @@
     function initRepo() {
 
         repo.on('child_added', function(payload) {
-                var message = payload.val();
-                console.log('child_added | peer.connect to ', message.peerId);
-                var conn = peer.connect(message.peerId);
+            var message = payload.val();
+            console.log('child_added | peer.connect to ', message.peerId);
+            var conn = peer.connect(message.peerId);
 
-                conn.on('open', function() {
-                        // // Send messages
-                        // conn.send('Hello!');
-                        $('body').prepend('connection done to ' + conn.peer + '<br>')) call(conn);
-                });
+            conn.on('open', function() {
+                $('body').prepend('connection done to ' + conn.peer + '<br>');
+            });
 
             conn.on('error', function(err) {
                 console.log('cannot connect to peer', err);
             });
         });
 
-    repo.on('child_removed', function(payload) {
-        var message = payload.val();
-        console.log('child_removed | peer.disconnect from ', message.peerId);
-        var gonePeer = connectedTo.filter(function(p) {
-            return p.peer === message.peerId;
+        repo.on('child_removed', function(payload) {
+            var message = payload.val();
+            console.log('child_removed | peer.disconnect from ', message.peerId);
+            var gonePeer = connectedTo.filter(function(p) {
+                return p.peer === message.peerId;
+            });
+            connectedTo.splice(connectedTo.indexOf(gonePeer), 1);
+            $('li[peer=' + message.peerId + ']').remove();
         });
-        connectedTo.splice(connectedTo.indexOf(gonePeer), 1);
-        $('li[peer=' + message.peerId + ']').remove();
-    });
     }
 
 
