@@ -97,8 +97,10 @@
         call.on('stream', function(stream) {
             $('body').prepend('getting the stream call from ' + fromPeerId + '<br>');
             var item = $('li[peer=' + fromPeerId + ']');
+            var foo = url ? url.createObjectURL(stream) : stream;
+            console.log(item, 'stream url=', foo);
             var video = $('<video autoplay>', {
-                src: url ? url.createObjectURL(stream) : stream
+                src: foo
             }).appendTo(item);
         });
     });
