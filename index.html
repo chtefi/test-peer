@@ -88,11 +88,12 @@
         initRepo();
     });
 
-    peer.on('call', function(mediaConnection) {
-        var fromPeerId = mediaConnection.peer;
+    peer.on('call', function(call) {
+        var fromPeerId = call.peer;
         $('body').prepend('getting a call from ' + fromPeerId + '<br>');
-        mediaConnection.answer(myStream);
-        mediaConnection.on('stream', function(stream) {
+        console.log('getting a call from ' + fromPeerId);
+        call.answer(myStream);
+        call.on('stream', function(stream) {
             $('body').prepend('getting the stream call from ' + fromPeerId + '<br>');
             var item = $('li[peer=' + fromPeerId + ']');
             var video = $('<video autoplay>', {
