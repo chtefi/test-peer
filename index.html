@@ -77,7 +77,7 @@
     }, function(stream) {
         var url = window.URL || window.webkitURL;
         $('body').prepend(url.createObjectURL(stream));
-        $('video#yourself').attr('src', url ? url.createObjectURL(stream) : stream)[0].play();
+        $('video#yourself').attr('src', url ? url.createObjectURL(stream) : stream);
     }, function(err) {
       console.err(err);
         $('video#yourself').text('cannot display your stream: ' + err);
