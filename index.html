@@ -39,9 +39,11 @@
 
     <script>
     var repo = new Firebase('https://dazzling-fire-8759.firebaseio.com')
+    $('body').prepend("1");
     var peer = new Peer({
         key: 'rv3o73w5cgix80k9'
     });
+    $('body').prepend("2");
     var connectedTo = [];
 
     peer.on('open', function(id) {
