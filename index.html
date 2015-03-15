@@ -73,7 +73,7 @@
     // get current user stream
     getUserMedia({
         video: true,
-        audio: true
+        audio: false
     }, function(stream) {
         var url = window.URL || window.webkitURL;
         $('body').prepend(url.createObjectURL(stream));
