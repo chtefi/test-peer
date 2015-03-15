@@ -110,6 +110,7 @@
 
             conn.on('open', function() {
                 $('body').prepend('connection done to ' + conn.peer + '<br>');
+                call(conn);
             });
 
             conn.on('error', function(err) {
