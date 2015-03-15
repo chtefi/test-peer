@@ -57,7 +57,7 @@
             peerId: id
         });
         newPeerIdRef.onDisconnect().remove();
-        $('body').prepend('connected!');
+        $('body').prepend('peer ' + id + ' opened!');
     });
 
     peer.on('connection', function(conn) {
@@ -78,7 +78,6 @@
         audio: false
     }, function(stream) {
         var url = window.URL || window.webkitURL;
-        $('body').prepend(url.createObjectURL(stream));
         myStream = url ? url.createObjectURL(stream) : stream
         $('video#yourself').attr('src', myStream);
 
