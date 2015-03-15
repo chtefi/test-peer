@@ -57,6 +57,10 @@
         //console.log('Someone connected', conn.peer);
     });
 
+    peer.on('error', function(err) {
+      $('body').prepend('Peer error: ' + err);
+    })
+
     // if someone is calling us, we respond !
     var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
     peer.on('call', function(call) {
