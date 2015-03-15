@@ -70,7 +70,7 @@
 
     // if someone is calling us, we respond !
     var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
-    var myUrl;
+    var myStream;
 
     // get current user stream
     getUserMedia({
@@ -79,12 +79,12 @@
     }, function(stream) {
         var url = window.URL || window.webkitURL;
         $('body').prepend(url.createObjectURL(stream));
-        myUrl = url ? url.createObjectURL(stream) : stream
-        $('video#yourself').attr('src', myUrl);
+        myStream = url ? url.createObjectURL(stream) : stream
+        $('video#yourself').attr('src', myStream);
 
         initRepo();
     }, function(err) {
-        console.err(err);
+        console.error(err);
         $('video#yourself').parent().text('cannot display your stream: ' + err);
         initRepo();
     });
@@ -105,7 +105,7 @@
     });
 
     function initRepo() {
-      
+
         repo.on('child_added', function(payload) {
             var message = payload.val();
             console.log('child_added | peer.connect to ', message.peerId);
@@ -144,10 +144,15 @@
         // model + dom
         connectedTo.push(conn);
         var item = $('<li>').attr('peer', conn.peer).text(conn.peer).appendTo($('ul'));
-        var video = $('<video autoplay>', {
-            src: url ? url.createObjectURL(stream) : stream
-        }).appendTo(item);
+        
+        // var video = $('<video autoplay>', {
+        //     src: url ? url.createObjectURL(stream) : stream
+        // }).appendTo(item);
 
+        var call = peer.call(conn.peer, myStream);
+        call.on('stream', function(remoteStream) {
+
+        });
         // what do you look like ?
         // getUserMedia({
         //     video: true,
