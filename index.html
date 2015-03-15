@@ -78,8 +78,8 @@
         audio: false
     }, function(stream) {
         var url = window.URL || window.webkitURL;
-        myStream = url ? url.createObjectURL(stream) : stream
-        $('video#yourself').attr('src', myStream);
+        myStream = stream;
+        $('video#yourself').attr('src', url ? url.createObjectURL(stream) : stream);
 
         initRepo();
     }, function(err) {
