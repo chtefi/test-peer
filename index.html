@@ -70,7 +70,7 @@
 
     // if someone is calling us, we respond !
     var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
-    var myStream;
+    var myStream = null;
 
     // get current user stream
     getUserMedia({
@@ -88,56 +88,46 @@
         initRepo();
     });
 
-    peer.on('call', function(call) {
-      $('body').prepend('getting a call');
-      console.log(call);
-        // getUserMedia({
-        //     video: true,
-        //     audio: true
-        // }, function(stream) {
-        //     call.answer(stream); // Answer the call with an A/V stream.
-        //     // we don't need to show our stream
-        //     //call.on('stream', function(remoteStream) {
-        //     // Show stream in some video/canvas element.
-        //     //});
-        // }, function(err) {
-        //     console.err("error while responding to a call", err);
-        // });
+    peer.on('call', function(mediaConnection) {
+        var fromPeerId = mediaConnection.peer;
+        $('body').prepend('getting a call from ' + fromPeerId + '<br>');
+        mediaConnection.answer(myStream);
+        mediaConnection.on('stream', function(stream) {
+            $('body').prepend('getting the stream call from ' + fromPeerId + '<br>');
+            var item = $('li[peer=' + fromPeerId + ']');
+            var video = $('<video autoplay>', {
+                src: url ? url.createObjectURL(stream) : stream
+            }).appendTo(item);
+        });
     });
 
     function initRepo() {
 
         repo.on('child_added', function(payload) {
-            var message = payload.val();
-            console.log('child_added | peer.connect to ', message.peerId);
-            var conn = peer.connect(message.peerId);
+                var message = payload.val();
+                console.log('child_added | peer.connect to ', message.peerId);
+                var conn = peer.connect(message.peerId);
 
-            conn.on('open', function() {
-                // // Receive messages
-                // conn.on('data', function(data) {
-                //     console.log('Received', data);
-                // });
-
-                // // Send messages
-                // conn.send('Hello!');
-                console.log('connection done to', conn.peer)
-                call(conn);
-            });
+                conn.on('open', function() {
+                        // // Send messages
+                        // conn.send('Hello!');
+                        $('body').prepend('connection done to ' + conn.peer + '<br>')) call(conn);
+                });
 
             conn.on('error', function(err) {
                 console.log('cannot connect to peer', err);
             });
         });
 
-        repo.on('child_removed', function(payload) {
-            var message = payload.val();
-            console.log('child_removed | peer.disconnect from ', message.peerId);
-            var gonePeer = connectedTo.filter(function(p) {
-                return p.peer === message.peerId;
-            });
-            connectedTo.splice(connectedTo.indexOf(gonePeer), 1);
-            $('li[peer=' + message.peerId + ']').remove();
+    repo.on('child_removed', function(payload) {
+        var message = payload.val();
+        console.log('child_removed | peer.disconnect from ', message.peerId);
+        var gonePeer = connectedTo.filter(function(p) {
+            return p.peer === message.peerId;
         });
+        connectedTo.splice(connectedTo.indexOf(gonePeer), 1);
+        $('li[peer=' + message.peerId + ']').remove();
+    });
     }
 
 
@@ -145,33 +135,14 @@
         // model + dom
         connectedTo.push(conn);
         var item = $('<li>').attr('peer', conn.peer).text(conn.peer).appendTo($('ul'));
-        
+
         // var video = $('<video autoplay>', {
         //     src: url ? url.createObjectURL(stream) : stream
         // }).appendTo(item);
-      if (myStream) {
-        $('body').prepend('calling ' + conn.peer + ' with my stream');
-        peer.call(conn.peer, myStream);
-      }
-        // what do you look like ?
-        // getUserMedia({
-        //     video: true,
-        //     audio: true
-        // }, function(stream) {
-        //     var call = peer.call(conn.peer, stream);
-
-        //     call.on('stream', function(remoteStream) {
-        //         var url = window.URL || window.webkitURL;
-        //         var video = $('<video>', {
-        //             src: url ? url.createObjectURL(stream) : stream
-        //         }).appendTo(item);
-        //         video[0].play();
-        //         console.log('streaming ok with', conn.peer);
-        //     });
-        // }, function(err) {
-        //     console.error('cannot stream with', conn.peer, ':', err);
-        //     item.text('No stream: ' + err.name);
-        // });
+        if (myStream) {
+            $('body').prepend('calling ' + conn.peer + ' with my stream<br>');
+            peer.call(conn.peer, myStream);
+        }
     }
     </script>
 
