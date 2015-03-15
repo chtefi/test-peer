@@ -50,6 +50,7 @@
             peerId: id
         });
         newPeerIdRef.onDisconnect().remove();
+        $('body').prepend('connected!');
     });
 
     peer.on('connection', function(conn) {
