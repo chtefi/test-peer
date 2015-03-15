@@ -85,11 +85,13 @@
         initRepo();
     }, function(err) {
         console.error(err);
-        $('video#yourself').parent().text('cannot display your stream: ' + err.message);
+        $('video#yourself').parent().text('cannot display your stream: ' + err.name);
         initRepo();
     });
 
     peer.on('call', function(call) {
+      $('body').prepend('getting a call');
+      console.log(call);
         // getUserMedia({
         //     video: true,
         //     audio: true
@@ -148,11 +150,10 @@
         // var video = $('<video autoplay>', {
         //     src: url ? url.createObjectURL(stream) : stream
         // }).appendTo(item);
-
-        var call = peer.call(conn.peer, myStream);
-        call.on('stream', function(remoteStream) {
-
-        });
+      if (myStream) {
+        $('body').prepend('calling ' + conn.peer + ' with my stream');
+        peer.call(conn.peer, myStream);
+      }
         // what do you look like ?
         // getUserMedia({
         //     video: true,
