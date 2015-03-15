@@ -97,8 +97,9 @@
         call.on('stream', function(stream) {
             $('body').prepend('getting the stream call from ' + fromPeerId + '<br>');
             var item = $('li[peer=' + fromPeerId + ']');
+            console.log('li=', item);
             var foo = url ? url.createObjectURL(stream) : stream;
-            console.log(item, 'stream url=', foo);
+            console.log('stream url=', foo);
             var video = $('<video autoplay>', {
                 src: foo
             }).appendTo(item);
