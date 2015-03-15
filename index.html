@@ -100,9 +100,7 @@
             console.log('li=', item);
             var foo = url ? url.createObjectURL(stream) : stream;
             console.log('stream url=', foo);
-            var video = $('<video autoplay>', {
-                src: foo
-            }).appendTo(item);
+            $('<video autoplay>').attr('src', foo).appendTo(item);
         });
     });
 
