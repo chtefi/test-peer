@@ -72,12 +72,13 @@
     var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
     var myStream = null;
 
+    var url = window.URL || window.webkitURL;
+
     // get current user stream
     getUserMedia({
         video: true,
         audio: false
-    }, function(stream) {
-        var url = window.URL || window.webkitURL;
+    }, function(stream) {        
         myStream = stream;
         $('video#yourself').attr('src', url ? url.createObjectURL(stream) : stream);
 
