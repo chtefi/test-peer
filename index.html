@@ -38,12 +38,10 @@
     <script src="//cdn.peerjs.com/0.3.9/peer.js"></script>
 
     <script>
-    var repo = new Firebase('https://dazzling-fire-8759.firebaseio.com')
-    $('body').prepend("1");
+    var repo = new Firebase('https://dazzling-fire-8759.firebaseio.com');
     var peer = new Peer({
         key: 'rv3o73w5cgix80k9'
     });
-    $('body').prepend("2");
     var connectedTo = [];
 
     peer.on('open', function(id) {
