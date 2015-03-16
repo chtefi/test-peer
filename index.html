@@ -156,6 +156,8 @@
 
     function connectToFirebase() {
 
+        // TODO how to distinct added on init or later ?
+        // one new client SHOULD connect to the other, not both of them doing it
         repo.on('child_added', function(payload) {
             var message = payload.val();
             log('child_added | peer.connect to ' + message.peerId);
