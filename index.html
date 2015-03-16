@@ -47,7 +47,7 @@
     var PEER_KEY = 'rv3o73w5cgix80k9';
     var FIREBASE_URL = 'https://dazzling-fire-8759.firebaseio.com';
     requestOwnStream(function() {
-        Peer.init(function() {
+        MyPeer.init(function() {
             connectToFirebase();
         })
     });
@@ -77,7 +77,7 @@
     }
 
 
-    var Peer = {
+    var MyPeer = {
         connectedTo: [],
         peer: null,
 
@@ -158,13 +158,13 @@
         repo.on('child_added', function(payload) {
             var message = payload.val();
             log('child_added | peer.connect to ' + message.peerId);
-            Peer.connectTo(message.peerId);
+            MyPeer.connectTo(message.peerId);
         });
 
         repo.on('child_removed', function(payload) {
             var message = payload.val();
             log('child_removed | peer.disconnect from ' + message.peerId);
-            Peer.disconnectFrom(message.peerId);
+            MyPeer.disconnectFrom(message.peerId);
 
         });
     }
