@@ -15,8 +15,8 @@
         padding: 0;
     }
     li {
-        width: 400px;
-        height: 400px;
+        width: 200px;
+        height: 200px;
         float: left;
         margin: 10px;
         border: 1px solid #ccc;
@@ -26,8 +26,7 @@
         height: 100%;
     }
     li:first-child {
-        background: blue;
-        padding: 10px;
+        border: 1px solid blue;
     }
     </style>
 </head>
@@ -36,7 +35,7 @@
 
     <ul>
         <li>
-            <video autoplay id="yourself"></video>
+            <video autoplay id="myself"></video>
         </li>
     </ul>
 
@@ -45,102 +44,129 @@
     <script src="http://cdn.peerjs.com/0.3.9/peer.js"></script>
 
     <script>
-    var repo = new Firebase('https://dazzling-fire-8759.firebaseio.com');
-    var peer = new Peer({
-        key: 'rv3o73w5cgix80k9'
+    var PEER_KEY = 'rv3o73w5cgix80k9';
+    var FIREBASE_URL = 'https://dazzling-fire-8759.firebaseio.com';
+    requestOwnStream(function() {
+        Peer.connect(function() {
+            connectToFirebase();
+        })
     });
-    var connectedTo = [];
+    var log = function(msg) {
+        $('body').prepend($('<div>').text(msg));
+    };
+    //var log = console.log;
 
-    peer.on('open', function(id) {
-        var newPeerIdRef = repo.push();
-        newPeerIdRef.set({
-            peerId: id
-        });
-        newPeerIdRef.onDisconnect().remove();
-        $('body').prepend('peer ' + id + ' opened!');
-    });
+    var User = {
+        stream: null
+    };
 
-    peer.on('connection', function(conn) {
-        //console.log('Someone connected', conn.peer);
-    });
-
-    peer.on('error', function(err) {
-        $('body').prepend('Peer error: ' + err);
-    })
-
-    // if someone is calling us, we respond !
-    var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
-    var myStream = null;
-
-    var url = window.URL || window.webkitURL;
-
-    // get current user stream
-    getUserMedia({
-        video: true,
-        audio: false
-    }, function(stream) {        
-        myStream = stream;
-        $('video#yourself').attr('src', url ? url.createObjectURL(stream) : stream);
-
-        initRepo();
-    }, function(err) {
-        console.error(err);
-        $('video#yourself').parent().text('cannot display your stream: ' + err.name);
-        initRepo();
-    });
-
-    peer.on('call', function(call) {
-        var fromPeerId = call.peer;
-        $('body').prepend('getting a call from ' + fromPeerId + '<br>');
-        console.log('getting a call from ' + fromPeerId);
-        call.answer(myStream);
-        call.on('stream', function(stream) {
-            $('body').prepend('getting the stream call from ' + fromPeerId + '<br>');
-            var item = $('li[peer=' + fromPeerId + ']');
-            var video = $('<video autoplay>').appendTo(item);
-            video.attr('src', url.createObjectURL(stream));
-        });
-    });
-
-    function initRepo() {
-
-        repo.on('child_added', function(payload) {
-            var message = payload.val();
-            console.log('child_added | peer.connect to ', message.peerId);
-            var conn = peer.connect(message.peerId);
-
-            conn.on('open', function() {
-                $('body').prepend('connection done to ' + conn.peer + '<br>');
-                call(conn);
-            });
-
-            conn.on('error', function(err) {
-                console.log('cannot connect to peer', err);
-            });
-        });
-
-        repo.on('child_removed', function(payload) {
-            var message = payload.val();
-            console.log('child_removed | peer.disconnect from ', message.peerId);
-            var gonePeer = connectedTo.filter(function(p) {
-                return p.peer === message.peerId;
-            });
-            connectedTo.splice(connectedTo.indexOf(gonePeer), 1);
-            $('li[peer=' + message.peerId + ']').remove();
+    function requestOwnStream(next) {
+        var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia).bind(navigator);
+        getUserMedia({
+            video: true,
+            audio: true
+        }, function(stream) {
+            User.stream = stream;
+            $('video#myself').attr('src', URL.createObjectURL(stream));
+            next();
+        }, function(err) {
+            log('getUserMedia:' + err);
+            $('video#myself').parent().text('Cannot display your stream: ' + err.name);
+            next(); // you will still be able to see the other users
         });
     }
 
 
-    function call(conn) {
-        // model + dom
-        connectedTo.push(conn);
-        var item = $('<li>').attr('peer', conn.peer).text(conn.peer).appendTo($('ul'));
+    var Peer = {
+        connectedTo: [],
+        peer: null,
 
-        $('body').prepend('can call ? ' + myStream + '<br>');
-        if (myStream) {
-            $('body').prepend('calling ' + conn.peer + ' with my stream<br>');
-            peer.call(conn.peer, myStream);
+        init: function(next) {
+            this.peer = new Peer({
+                key: PEER_KEY
+            });
+
+            this.peer.on('open', function(id) {
+                // when the browser is closed, ensure we deleted our firebase record (to trigger to peer disconnection from other users)
+                var newPeerIdRef = repo.push();
+                newPeerIdRef.set({
+                    peerId: id
+                });
+                newPeerIdRef.onDisconnect().remove();
+                log('peer ' + id + ' opened!');
+            });
+
+            this.peer.on('connection', function(conn) {
+                log('New user connected to me ' + conn.peer);
+            });
+
+            this.peer.on('error', function(err) {
+                log('Peer error: ' + err);
+            })
+
+            // if someone is calling us, we answer with our stream and we display the one of the user contacting us
+            this.peer.on('call', function(call) {
+                var fromPeerId = call.peer;
+                log('getting a call from ' + fromPeerId);
+                call.answer(User.stream); // null or not
+                call.on('stream', function(stream) {
+                    log('getting the stream call from ' + fromPeerId);
+                    var item = $('li[peer=' + fromPeerId + ']');
+                    var video = $('<video autoplay>').appendTo(item);
+                    video.attr('src', url.createObjectURL(stream));
+                });
+            });
+
+            next();
+        },
+
+        call: function(conn) {
+            this.connectedTo.push(conn);
+            var item = $('<li>').attr('peer', conn.peer).appendTo($('ul'));
+            if (User.stream !== null) {
+                log('calling ' + conn.peer + ' passing my own stream');
+                this.peer.call(conn.peer, User.stream);
+            } else {
+                log("can't call, I don't have any stream");
+            }
+        },
+
+        connectTo: function(peerId) {
+            var conn = this.peer.connect(peerId);
+            conn.on('open', function() {
+                log('connection done to ' + conn.peer);
+                this.call(conn);
+            });
+
+            conn.on('error', function(err) {
+                log('cannot connect to peer' + err.name);
+            });
+        },
+
+        disconnectFrom: function(peerId) {
+            var gonePeer = this.connectedTo.filter(function(p) {
+                return p.peer === peerId;
+            });
+            this.connectedTo.splice(this.connectedTo.indexOf(gonePeer), 1);
+            $('li[peer=' + peerId + ']').remove();
         }
+    };
+
+    function connectToFirebase() {
+        var repo = new Firebase(FIREBASE_URL);
+
+        repo.on('child_added', function(payload) {
+            var message = payload.val();
+            log('child_added | peer.connect to ' + message.peerId);
+            Peer.connectTo(message.peerId);
+        });
+
+        repo.on('child_removed', function(payload) {
+            var message = payload.val();
+            log('child_removed | peer.disconnect from ' + message.peerId);
+            Peer.disconnectFrom(message.peerId);
+
+        });
     }
     </script>
 
