@@ -47,7 +47,7 @@
     var PEER_KEY = 'rv3o73w5cgix80k9';
     var FIREBASE_URL = 'https://dazzling-fire-8759.firebaseio.com';
     requestOwnStream(function() {
-        Peer.connect(function() {
+        Peer.init(function() {
             connectToFirebase();
         })
     });
