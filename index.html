@@ -47,7 +47,7 @@
     var PEER_KEY = 'rv3o73w5cgix80k9';
     var FIREBASE_URL = 'https://dazzling-fire-8759.firebaseio.com';
     var repo = new Firebase(FIREBASE_URL);
-    
+
     requestOwnStream(function() {
         MyPeer.init(function() {
             connectToFirebase();
@@ -72,7 +72,7 @@
             $('video#myself').attr('src', URL.createObjectURL(stream));
             next();
         }, function(err) {
-            log('getUserMedia:' + err);
+            log('getUserMedia:' + err.name);
             $('video#myself').parent().text('Cannot display your stream: ' + err.name);
             next(); // you will still be able to see the other users
         });
@@ -138,7 +138,7 @@
             conn.on('open', function() {
                 log('connection done to ' + conn.peer);
                 this.call(conn);
-            });
+            }.bind(this));
 
             conn.on('error', function(err) {
                 log('cannot connect to peer' + err.name);
