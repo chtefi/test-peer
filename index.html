@@ -46,6 +46,8 @@
     <script>
     var PEER_KEY = 'rv3o73w5cgix80k9';
     var FIREBASE_URL = 'https://dazzling-fire-8759.firebaseio.com';
+    var repo = new Firebase(FIREBASE_URL);
+    
     requestOwnStream(function() {
         MyPeer.init(function() {
             connectToFirebase();
@@ -153,7 +155,6 @@
     };
 
     function connectToFirebase() {
-        var repo = new Firebase(FIREBASE_URL);
 
         repo.on('child_added', function(payload) {
             var message = payload.val();
