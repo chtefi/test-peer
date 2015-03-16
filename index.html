@@ -115,7 +115,7 @@
                     log('getting the stream call from ' + fromPeerId);
                     var item = $('li[peer=' + fromPeerId + ']');
                     var video = $('<video autoplay>').appendTo(item);
-                    video.attr('src', url.createObjectURL(stream));
+                    video.attr('src', URL.createObjectURL(stream));
                 });
             });
 
